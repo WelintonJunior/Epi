@@ -17,9 +17,9 @@ Siga os passos abaixo para rodar o projeto em qualquer máquina com Python insta
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/seu-usuario/seu-repo.git
-cd seu-repo
-````
+git clone https://github.com/WelintonJunior/Epi.git
+cd Epi
+
 
 ### 2. (Opcional) Crie um ambiente virtual
 
