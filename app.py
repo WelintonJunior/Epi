@@ -4,15 +4,22 @@ from ultralytics import YOLO
 from roboflow import Roboflow
 from dotenv import load_dotenv
 
+# Carrega variáveis do .env
 load_dotenv()
 
 api_key = os.getenv("API_KEY")
 if not api_key:
     raise ValueError("A chave da API não foi encontrada. Crie um arquivo .env com API_KEY=xxxx")
 
-dataset_path = "dataset/Hard-Hats-4"
+# Caminhos baseados no diretório do script
+base_dir = os.path.dirname(os.path.abspath(__file__))
+dataset_path = os.path.join(base_dir, "dataset", "Hard-Hats-4")
 dataset_yaml = os.path.join(dataset_path, "data.yaml")
 
+print("-------------------------------------")
+print("Verificando dataset_yaml em:", dataset_yaml)
+
+# Verifica se dataset está presente
 if not os.path.exists(dataset_yaml):
     print("Baixando o dataset da Roboflow...")
     rf = Roboflow(api_key=api_key)
@@ -22,7 +29,10 @@ if not os.path.exists(dataset_yaml):
 else:
     print("Dataset já existe em:", dataset_path)
 
-best_model_path = "runs/detect/train/weights/best.pt"
+# Caminho absoluto do modelo
+best_model_path = os.path.join(base_dir, "runs", "detect", "train", "weights", "best.pt")
+
+# Treina o modelo se não existir
 if not os.path.exists(best_model_path):
     print("Treinando o modelo YOLOv8n...")
     model = YOLO('yolov8n.pt')
@@ -30,9 +40,11 @@ if not os.path.exists(best_model_path):
 else:
     print("Modelo já treinado.")
 
+# Carrega o modelo treinado
 model = YOLO(best_model_path)
 model.to('cpu')
 
+# Inicializa a webcam
 cap = cv2.VideoCapture(0)
 if not cap.isOpened():
     raise RuntimeError("Não foi possível acessar a webcam.")
