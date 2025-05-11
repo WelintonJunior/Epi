@@ -5,40 +5,40 @@ from roboflow import Roboflow
 from dotenv import load_dotenv
 
 # Carrega variáveis do .env
-load_dotenv()
+# load_dotenv()
 
-api_key = os.getenv("API_KEY")
-if not api_key:
-    raise ValueError("A chave da API não foi encontrada. Crie um arquivo .env com API_KEY=xxxx")
+# api_key = os.getenv("API_KEY")
+# if not api_key:
+#     raise ValueError("A chave da API não foi encontrada. Crie um arquivo .env com API_KEY=xxxx")
 
-# Caminhos baseados no diretório do script
+# # Caminhos baseados no diretório do script
 base_dir = os.path.dirname(os.path.abspath(__file__))
-dataset_path = os.path.join(base_dir, "dataset", "Hard-Hats-4")
-dataset_yaml = os.path.join(dataset_path, "data.yaml")
+# dataset_path = os.path.join(base_dir, "dataset", "Hard-Hats-4")
+# dataset_yaml = os.path.join(dataset_path, "data.yaml")
 
-print("-------------------------------------")
-print("Verificando dataset_yaml em:", dataset_yaml)
+# print("-------------------------------------")
+# print("Verificando dataset_yaml em:", dataset_yaml)
 
-# Verifica se dataset está presente
-if not os.path.exists(dataset_yaml):
-    print("Baixando o dataset da Roboflow...")
-    rf = Roboflow(api_key=api_key)
-    project = rf.workspace("roboflow-universe-projects").project("hard-hats-fhbh5")
-    dataset = project.version(4).download("yolov8")
-    print("Download concluído em:", dataset.location)
-else:
-    print("Dataset já existe em:", dataset_path)
+# # Verifica se dataset está presente
+# if not os.path.exists(dataset_yaml):
+#     print("Baixando o dataset da Roboflow...")
+#     rf = Roboflow(api_key=api_key)
+#     project = rf.workspace("roboflow-universe-projects").project("hard-hats-fhbh5")
+#     dataset = project.version(4).download("yolov8")
+#     print("Download concluído em:", dataset.location)
+# else:
+#     print("Dataset já existe em:", dataset_path)
 
 # Caminho absoluto do modelo
-best_model_path = os.path.join(base_dir, "runs", "detect", "train", "weights", "best.pt")
+best_model_path = os.path.join(base_dir, "runs", "detect", "train", "train5", "weights", "best.pt")
 
 # Treina o modelo se não existir
-if not os.path.exists(best_model_path):
-    print("Treinando o modelo YOLOv8n...")
-    model = YOLO('yolov8n.pt')
-    model.train(data=dataset_yaml, epochs=50, imgsz=416)
-else:
-    print("Modelo já treinado.")
+# if not os.path.exists(best_model_path):
+#     print("Treinando o modelo YOLOv8n...")
+#     model = YOLO('yolov8n.pt')
+#     model.train(data=dataset_yaml, epochs=50, imgsz=416)
+# else:
+#     print("Modelo já treinado.")
 
 # Carrega o modelo treinado
 model = YOLO(best_model_path)
