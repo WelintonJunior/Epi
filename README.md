@@ -85,3 +85,12 @@ O sistema vai:
 * Webcam funcional
 
 ```
+
+Para instalar o .exe, basta executar esse comando na raiz do projeto:
+
+pyinstaller app.spec
+
+Caso não tenha o pyinstaller instalado use esse comando:
+
+pip install pyinstaller
+
