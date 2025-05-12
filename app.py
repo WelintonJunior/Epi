@@ -45,11 +45,12 @@ model = YOLO(best_model_path)
 model.to('cpu')
 
 # Inicializa a webcam
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture("http://192.168.1.12:4747/video")
 if not cap.isOpened():
     raise RuntimeError("Não foi possível acessar a webcam.")
 
 print("Iniciando detecção em tempo real. Pressione 'q' para sair.")
+
 while True:
     ret, frame = cap.read()
     if not ret:
@@ -58,7 +59,28 @@ while True:
 
     resized_frame = cv2.resize(frame, (416, 416))
     results = model.predict(source=resized_frame, conf=0.4, imgsz=416)
-    annotated_frame = results[0].plot()
+
+    annotated_frame = resized_frame.copy()
+
+    for result in results:
+        boxes = result.boxes
+        for box in boxes:
+            cls_id = int(box.cls[0])
+            conf = float(box.conf[0])
+            label = result.names[cls_id]
+            x1, y1, x2, y2 = map(int, box.xyxy[0])
+
+            if label.lower() in ["hard-hat", "capacete"]:
+                color = (0, 255, 0)  
+                display_label = "Capacete"
+            else:
+                color = (0, 0, 255) 
+                display_label = "Sem Capacete"
+                print("⚠️ Alerta: Pessoa sem capacete detectada!")
+
+            cv2.rectangle(annotated_frame, (x1, y1), (x2, y2), color, 2)
+            cv2.putText(annotated_frame, display_label, (x1, y1 - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
 
     cv2.imshow("Detecção de EPIs", annotated_frame)
 
