@@ -4,48 +4,41 @@ from ultralytics import YOLO
 from roboflow import Roboflow
 from dotenv import load_dotenv
 
-# Carrega variáveis do .env
-# load_dotenv()
+load_dotenv()
 
-# api_key = os.getenv("API_KEY")
-# if not api_key:
-#     raise ValueError("A chave da API não foi encontrada. Crie um arquivo .env com API_KEY=xxxx")
+api_key = os.getenv("API_KEY")
+if not api_key:
+    raise ValueError("A chave da API não foi encontrada. Crie um arquivo .env com API_KEY=xxxx")
 
-# # Caminhos baseados no diretório do script
+# Configurações
+BAIXAR_DATASET = False  # Defina como True se quiser baixar o dataset
+TREINAR_MODELO = False  # Defina como True se quiser treinar o modelo
+
 base_dir = os.path.dirname(os.path.abspath(__file__))
-# dataset_path = os.path.join(base_dir, "dataset", "Hard-Hats-4")
-# dataset_yaml = os.path.join(dataset_path, "data.yaml")
-
-# print("-------------------------------------")
-# print("Verificando dataset_yaml em:", dataset_yaml)
-
-# # Verifica se dataset está presente
-# if not os.path.exists(dataset_yaml):
-#     print("Baixando o dataset da Roboflow...")
-#     rf = Roboflow(api_key=api_key)
-#     project = rf.workspace("roboflow-universe-projects").project("hard-hats-fhbh5")
-#     dataset = project.version(4).download("yolov8")
-#     print("Download concluído em:", dataset.location)
-# else:
-#     print("Dataset já existe em:", dataset_path)
-
-# Caminho absoluto do modelo
+dataset_path = os.path.join(base_dir, "dataset", "Hard-Hats-4")
+dataset_yaml = os.path.join(dataset_path, "data.yaml")
 best_model_path = os.path.join(base_dir, "runs", "detect", "train", "train5", "weights", "best.pt")
 
-# Treina o modelo se não existir
-# if not os.path.exists(best_model_path):
-#     print("Treinando o modelo YOLOv8n...")
-#     model = YOLO('yolov8n.pt')
-#     model.train(data=dataset_yaml, epochs=50, imgsz=416)
-# else:
-#     print("Modelo já treinado.")
+if BAIXAR_DATASET or not os.path.exists(dataset_yaml):
+    print("Baixando o dataset da Roboflow...")
+    rf = Roboflow(api_key=api_key)
+    project = rf.workspace("roboflow-universe-projects").project("hard-hats-fhbh5")
+    dataset = project.version(4).download("yolov8")
+    print("Download concluído em:", dataset.location)
+else:
+    print("Dataset já existe em:", dataset_path)
 
-# Carrega o modelo treinado
+if TREINAR_MODELO or not os.path.exists(best_model_path):
+    print("Treinando o modelo YOLOv8n...")
+    model = YOLO('yolov8n.pt')
+    model.train(data=dataset_yaml, epochs=50, imgsz=416)
+else:
+    print("Modelo já treinado.")
+
 model = YOLO(best_model_path)
 model.to('cpu')
 
-# Inicializa a webcam
-cap = cv2.VideoCapture("http://192.168.1.12:4747/video")
+cap = cv2.VideoCapture(0)
 if not cap.isOpened():
     raise RuntimeError("Não foi possível acessar a webcam.")
 
@@ -71,10 +64,10 @@ while True:
             x1, y1, x2, y2 = map(int, box.xyxy[0])
 
             if label.lower() in ["hard-hat", "capacete"]:
-                color = (0, 255, 0)  
+                color = (0, 255, 0)
                 display_label = "Capacete"
             else:
-                color = (0, 0, 255) 
+                color = (0, 0, 255)
                 display_label = "Sem Capacete"
                 print("⚠️ Alerta: Pessoa sem capacete detectada!")
 

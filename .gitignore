@@ -1,2 +1,4 @@
 .env
 \dataset
+\dist
+\build
